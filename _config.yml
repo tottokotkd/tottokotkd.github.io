@@ -3,16 +3,16 @@
 ## Source: https://github.com/hexojs/hexo/
 
 # Site
-title: Hexo
-subtitle:
+title: 電池冷蔵庫
+subtitle: スタッドレスタイヤのいらない地域に住みたい
 description:
-author: John Doe
-language:
-timezone:
+author: tottokotkd
+language: ja
+timezone: Asia/Tokyo
 
 # URL
 ## If your site is put in a subdirectory, set url as 'http://yoursite.com/child' and root as '/child/'
-url: http://yoursite.com
+url: http://blog.tottokotkd.com
 root: /
 permalink: :year/:month/:day/:title/
 permalink_defaults:
@@ -28,7 +28,7 @@ i18n_dir: :lang
 skip_render:
 
 # Writing
-new_post_name: :title.md # File name of new posts
+new_post_name: :year:month:day :title.md # File name of new posts
 default_layout: post
 titlecase: false # Transform title into titlecase
 external_link: true # Open external links in new tab
@@ -39,7 +39,7 @@ relative_link: false
 future: true
 highlight:
   enable: true
-  line_number: true
+  line_number: note
   auto_detect: false
   tab_replace:
 
@@ -70,3 +70,9 @@ theme: landscape
 deploy:
   type: git
   repo: git@github.com:tottokotkd/tottokotkd.github.io.git
+
+feed:
+  type: atom
+  path: atom.xml
+  limit: 20
+  hub:
