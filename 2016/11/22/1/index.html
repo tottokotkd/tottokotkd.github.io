@@ -1,5 +1,5 @@
 <!DOCTYPE html>
-<html lang="en">
+<html lang="ja">
 
 <!-- Head tag -->
 <head>
@@ -38,7 +38,7 @@
     <!--Page Cover-->
     
 
-    <meta name="twitter:card" content="summary" />
+        <meta name="twitter:card" content="summary" />
     
 
     <!-- Title -->
@@ -46,23 +46,25 @@
     <title>swift buildで渡すオプションをいちいち書きたくないのでcmakeする - 電池冷蔵庫</title>
 
     <!-- Bootstrap Core CSS -->
-    <link rel="stylesheet" href="//maxcdn.bootstrapcdn.com/bootstrap/4.0.0-alpha.2/css/bootstrap.min.css" integrity="sha384-y3tfxAZXuh4HwSYylfB+J125MxIs6mR5FOHamPBG064zB+AFeWH94NdvaCBm8qnd" crossorigin="anonymous">
+    <link href="//maxcdn.bootstrapcdn.com/bootstrap/3.3.6/css/bootstrap.min.css" rel="stylesheet"/>
+
+    <!-- Custom CSS -->
+    <link rel="stylesheet" href="/css/style.css">
 
     <!-- Custom Fonts -->
     <link href="//maxcdn.bootstrapcdn.com/font-awesome/4.6.3/css/font-awesome.min.css" rel="stylesheet" type="text/css">
+    <link href="//fonts.googleapis.com/css?family=Lora:400,700,400italic,700italic" rel="stylesheet" type="text/css">
+    <link href="//fonts.googleapis.com/css?family=Open+Sans:300italic,400italic,600italic,700italic,800italic,400,300,600,700,800" rel="stylesheet" type="text/css">
 
     <!-- HTML5 Shim and Respond.js IE8 support of HTML5 elements and media queries -->
     <!-- WARNING: Respond.js doesn't work if you view the page via file:// -->
     <!--[if lt IE 9]>
-        <script src="//oss.maxcdn.com/libs/html5shiv/3.7.0/html5shiv.js"></script>
-        <script src="//oss.maxcdn.com/libs/respond.js/1.4.2/respond.min.js"></script>
+    <script src="//oss.maxcdn.com/libs/html5shiv/3.7.0/html5shiv.js"></script>
+    <script src="//oss.maxcdn.com/libs/respond.js/1.4.2/respond.min.js"></script>
     <![endif]-->
 
     <!-- Gallery -->
     <link href="//cdnjs.cloudflare.com/ajax/libs/featherlight/1.3.5/featherlight.min.css" type="text/css" rel="stylesheet" />
-
-    <!-- Custom CSS -->
-    <link rel="stylesheet" href="/css/style.css">
 
     <!-- Google Analytics -->
     
@@ -79,93 +81,127 @@
 
 
 
+    <!-- favicon -->
+    
+	
 </head>
 
 
 <body>
 
-<div class="bg-gradient"></div>
-<div class="bg-pattern"></div>
+    <!-- Menu -->
+    <!-- Navigation -->
+<nav class="navbar navbar-default navbar-custom navbar-fixed-top">
+    <div class="container-fluid">
+        <!-- Brand and toggle get grouped for better mobile display -->
+        <div class="navbar-header page-scroll">
+            <button type="button" class="navbar-toggle" data-toggle="collapse" data-target="#bs-example-navbar-collapse-1">
+                <span class="sr-only">Toggle navigation</span>
+                <span class="icon-bar"></span>
+                <span class="icon-bar"></span>
+                <span class="icon-bar"></span>
+            </button>
+            <a class="navbar-brand" href="/">電池冷蔵庫</a>
+        </div>
 
-<!-- Menu -->
-<!--Menu Links and Overlay-->
-<div class="menu-bg">
-    <div class="menu-container">
-        <ul>
-            
-            <li class="menu-item">
-                <a href="/">
-                    Home
-                </a>
-            </li>
-            
-            <li class="menu-item">
-                <a href="/archives">
-                    Archives
-                </a>
-            </li>
-            
-            <li class="menu-item">
-                <a href="/about.html">
-                    About
-                </a>
-            </li>
-            
-            <li class="menu-item">
-                <a href="/contact.html">
-                    Contact
-                </a>
-            </li>
-            
-        </ul>
+        <!-- Collect the nav links, forms, and other content for toggling -->
+        <div class="collapse navbar-collapse" id="bs-example-navbar-collapse-1">
+            <ul class="nav navbar-nav navbar-right">
+                
+                    <li>
+                        <a href="/">
+                            
+                                Home
+                            
+                        </a>
+                    </li>
+                
+                    <li>
+                        <a href="/archives">
+                            
+                                Archives
+                            
+                        </a>
+                    </li>
+                
+                    <li>
+                        <a href="https://github.com/tottokotkd/">
+                            
+                                <i class="fa fa-github fa-stack-2x"></i>
+                            
+                        </a>
+                    </li>
+                
+                    <li>
+                        <a href="https://twitter.com/tottokotkd/">
+                            
+                                <i class="fa fa-twitter fa-stack-2x"></i>
+                            
+                        </a>
+                    </li>
+                
+            </ul>
+        </div>
+        <!-- /.navbar-collapse -->
     </div>
-</div>
-
-<!--Hamburger Icon-->
-<nav>
-    <a href="#menu"></a>
+    <!-- /.container -->
 </nav>
 
-<div class="container">
-
     <!-- Main Content -->
-    <div class="row">
-    <div class="col-sm-12">
+    <!-- Page Header -->
+<!-- Set your background image for this header in your post front-matter: cover -->
 
-        <!--Title and Logo-->
-        <header>
-    <div class="logo">
-        <a href="/"><i class="logo-icon fa fa-cube" aria-hidden="true"></i></a>
-        
+<header class="intro-header" style="background-image: url('http://www.codeblocq.com/assets/projects/hexo-theme-clean-blog/img/home-bg.jpg')">
+    <div class="container">
+        <div class="row">
+            <div class="col-lg-8 col-lg-offset-2 col-md-10 col-md-offset-1">
+                <div class="post-heading">
+                    <h1>swift buildで渡すオプションをいちいち書きたくないのでcmakeする</h1>
+                    
+                    <span class="meta">
+                        <!-- Date and Author -->
+                        
+                        2016-11-22
+                    </span>
+                </div>
+            </div>
+        </div>
     </div>
 </header>
 
-        <section class="main">
-            
-<div class="post">
-
-    <div class="post-header">
-        <h1 class="title">
-            <a href="/2016/11/22/1/">
-                swift buildで渡すオプションをいちいち書きたくないのでcmakeする
-            </a>
-        </h1>
-        <div class="post-info">
-            
-                <span class="date">2016-11-22</span>
-            
-            <a href="#disqus_thread" class="comments">Comentarios</a>
-            
+<!-- Post Content -->
+<article>
+    <div class="container">
+        <div class="row">
+            <div class="col-lg-4 col-lg-offset-2 col-md-5">
+                <a href="https://twitter.com/share" class="twitter-share-button" data-via="tottokotkd">Tweet</a> <script>!function(d,s,id){var js,fjs=d.getElementsByTagName(s)[0],p=/^http:/.test(d.location)?'http':'https';if(!d.getElementById(id)){js=d.createElement(s);js.id=id;js.src=p+'://platform.twitter.com/widgets.js';fjs.parentNode.insertBefore(js,fjs);}}(document, 'script', 'twitter-wjs');</script>
+            </div>
         </div>
-    </div>
+        <div class="row">
 
-    <div class="content">
+            <!-- Tags and categories -->
+           
+                <div class="col-lg-4 col-lg-offset-2 col-md-5 col-md-offset-1 post-tags">
+                    
+                        
 
-        <!-- Gallery -->
-        
 
-        <!-- Post Content -->
-        <p>いまサーバーサイドSwiftが盛り上がっています。まだ派手に燃えてはいませんが、確実に火がついています。だいたいXamarin勉強会の翌日くらい燃えてます。</p>
+<a href="/tags/Swift/">#Swift</a> <a href="/tags/CLion/">#CLion</a> <a href="/tags/CMake/">#CMake</a>
+
+
+                    
+                </div>
+                <div class="col-lg-4 col-md-5 post-categories">
+                    
+                </div>
+            
+
+            <!-- Gallery -->
+            
+
+            <!-- Post Main Content -->
+            <div class="col-lg-8 col-lg-offset-2 col-md-10 col-md-offset-1">
+                <p>いまサーバーサイドSwiftが盛り上がっています。まだ派手に燃えてはいませんが、確実に火がついています。だいたいXamarin勉強会の翌日くらい燃えてます。</p>
 <p>そういう次第でswiftの話です。毎度毎度 <code>swift build -Xswiftc -I/usr/local/include/mysql -Xlinker -L/usr/local/lib</code> とか書きたくない人は幸せになれるかもしれないです。</p>
 <h2 id="CMakeFiles-txtを書くべし"><a href="#CMakeFiles-txtを書くべし" class="headerlink" title="CMakeFiles.txtを書くべし"></a>CMakeFiles.txtを書くべし</h2><p>まずこういうやつ書いてください。ビルドコマンドのオプションを適宜いい感じにしましょう。</p>
 <figure class="highlight cmake"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div><div class="line">9</div><div class="line">10</div><div class="line">11</div><div class="line">12</div><div class="line">13</div><div class="line">14</div><div class="line">15</div><div class="line">16</div><div class="line">17</div></pre></td><td class="code"><pre><div class="line"><span class="keyword">cmake_minimum_required</span>(VERSION <span class="number">3.6</span>)</div><div class="line"><span class="keyword">project</span>(MariaDbTaler)</div><div class="line"></div><div class="line"><span class="keyword">set</span>(SOURCE_FILES</div><div class="line">        Sources/MariaDbDriver.swift</div><div class="line">        Package.swift)</div><div class="line"></div><div class="line"><span class="keyword">set</span>(SWIFT_COMMAND</div><div class="line">        swift build</div><div class="line">        -Xlinker -L/usr/local/lib</div><div class="line">        -Xcc -I/usr/local/<span class="keyword">include</span></div><div class="line">        -Xswiftc -lmysqlclient)</div><div class="line"></div><div class="line"><span class="keyword">add_custom_target</span>(MariaDbTaler</div><div class="line">        COMMAND <span class="variable">$&#123;SWIFT_COMMAND&#125;</span></div><div class="line">        WORKING_DIRECTORY <span class="variable">$&#123;CMAKE_SOURCE_DIR&#125;</span></div><div class="line">        SOURCES <span class="variable">$&#123;SOURCE_FILES&#125;</span>)</div></pre></td></tr></table></figure>
@@ -183,131 +219,80 @@
 <p>これはつまり古代C言語の領域に突入しているわけです。<code>swift build</code>の挙動がよく分からないという人はC++あたりのコンパイラ・リンカの解説記事を読むといいかもしれないです。</p>
 <p>決してコンパイラーではありません、コンパイラです。</p>
 
-    </div>
 
-    
+                
+            </div>
 
-    
-        <div class="post-tags">
-            <i class="fa fa-tags" aria-hidden="true"></i>
-            <a href="/tags/Swift/">#Swift</a> <a href="/tags/CLion/">#CLion</a> <a href="/tags/CMake/">#CMake</a>
+            <!-- Comments -->
+            
+                <div class="col-lg-8 col-lg-offset-2 col-md-10 col-md-offset-1">
+                    
+
+
+                </div>
+            
         </div>
-    
-
-    <!-- Comments -->
-    
-
-</div>
-        </section>
-
     </div>
-</div>
+</article>
 
-</div>
+    <!-- Footer -->
+    <hr />
 
 <!-- Footer -->
-<div class="push"></div>
-
-<footer class="footer-content">
+<footer>
     <div class="container">
         <div class="row">
-            <div class="col-xs-12 col-sm-12 col-md-6 col-lg-6 footer-about">
-                <h2>About</h2>
-                <p>
-                    スタッドレスタイヤのいらない地域に住みたい
-                </p>
-            </div>
-            
-    <div class="col-xs-6 col-sm-6 col-md-3 col-lg-3 recent-posts">
-        <h2>Recent Posts</h2>
-        <ul>
-            
-            <li>
-                <a class="footer-post" href="/2016/12/11/1/">Kotlin + AWS Lambda + API</a>
-            </li>
-            
-            <li>
-                <a class="footer-post" href="/2016/12/11/1/">Kotlin + AWS Lambda + API</a>
-            </li>
-            
-            <li>
-                <a class="footer-post" href="/2016/12/02/1/">Swift + Kitura + MySQLで頑張</a>
-            </li>
-            
-            <li>
-                <a class="footer-post" href="/2016/11/22/1/">swift buildで渡すオプションをいちいち書</a>
-            </li>
-            
-        </ul>
-    </div>
+            <div class="col-lg-8 col-lg-offset-2 col-md-10 col-md-offset-1">
+                <ul class="list-inline text-center">
+                    
+                        <li>
+                            <a href="https://twitter.com/tottokotkd" target="_blank">
+                                <span class="fa-stack fa-lg">
+                                    <i class="fa fa-circle fa-stack-2x"></i>
+                                    <i class="fa fa-twitter fa-stack-1x fa-inverse"></i>
+                                </span>
+                            </a>
+                        </li>
+                    
 
+                    
 
+                    
+                        <li>
+                            <a href="https://github.com/tottokotkd/" target="_blank">
+                                <span class="fa-stack fa-lg">
+                                    <i class="fa fa-circle fa-stack-2x"></i>
+                                    <i class="fa fa-github fa-stack-1x fa-inverse"></i>
+                                </span>
+                            </a>
+                        </li>
+                    
 
-            
-        </div>
-        <div class="row">
-            <div class="col-xs-12 col-sm-12 col-md-12 col-lg-12">
-                <ul class="list-inline footer-social-icons">
                     
-                    <li class="list-inline-item">
-                        <a href="https://github.com/tottokotkd/">
-                            <span class="footer-icon-container">
-                                <i class="fa fa-github"></i>
-                            </span>
-                        </a>
-                    </li>
+
                     
-                    
-                    <li class="list-inline-item">
-                        <a href="https://twitter.com/tottokotkd">
-                            <span class="footer-icon-container">
-                                <i class="fa fa-twitter"></i>
-                            </span>
-                        </a>
-                    </li>
-                    
-                    
-                    
-                    
-                    
-                    
-                    
-                    
-                    
-                    <li class="list-inline-item">
-                        <a href="/atom.xml">
-                            <span class="footer-icon-container">
-                                <i class="fa fa-rss"></i>
-                            </span>
-                        </a>
-                    </li>
+
                     
                 </ul>
-            </div>
-        </div>
-        <div class="row">
-            <div class="col-xs-12 col-sm-12 col-md-12 col-lg-12">
-                <div class="footer-copyright">
-                    (C) 2016 @tottokotkd All right reserved | Design & Hexo <a href="http://www.codeblocq.com/">Jonathan Klughertz</a>
-                </div>
+                <p class="copyright text-muted">&copy; 2016 tottokotkd<br></p>
+                <p class="copyright text-muted">Original Theme <a target="_blank" href="http://startbootstrap.com/template-overviews/clean-blog/">Clean Blog</a> from <a href="http://startbootstrap.com/" target="_blank">Start Bootstrap</a></p>
+                <p class="copyright text-muted">Adapted for <a target="_blank" href="https://hexo.io/">Hexo</a> by <a href="http://www.codeblocq.com/" target="_blank">Jonathan Klughertz</a></p>
             </div>
         </div>
     </div>
 </footer>
 
-<!-- After footer scripts -->
 
+    <!-- After footer scripts -->
+    
 <!-- jQuery -->
 <script src="//code.jquery.com/jquery-2.1.4.min.js"></script>
 
-<!-- Tween Max -->
-<script src="//cdnjs.cloudflare.com/ajax/libs/gsap/1.18.5/TweenMax.min.js"></script>
+<!-- Bootstrap -->
+<script src="//maxcdn.bootstrapcdn.com/bootstrap/3.3.6/js/bootstrap.min.js"></script>
 
 <!-- Gallery -->
 <script src="//cdnjs.cloudflare.com/ajax/libs/featherlight/1.3.5/featherlight.min.js" type="text/javascript" charset="utf-8"></script>
-
-<!-- Custom JavaScript -->
-<script src="/js/main.js"></script>
 
 <!-- Disqus Comments -->
 
