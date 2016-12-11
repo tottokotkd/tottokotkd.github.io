@@ -5,7 +5,7 @@
   <link href="/atom.xml" rel="self"/>
   
   <link href="http://blog.tottokotkd.com/"/>
-  <updated>2016-12-11T06:43:37.000Z</updated>
+  <updated>2016-12-11T06:46:04.000Z</updated>
   <id>http://blog.tottokotkd.com/</id>
   
   <author>
@@ -20,7 +20,7 @@
     <link href="http://blog.tottokotkd.com/2016/12/11/1/"/>
     <id>http://blog.tottokotkd.com/2016/12/11/1/</id>
     <published>2016-12-11T03:36:08.000Z</published>
-    <updated>2016-12-11T06:43:37.000Z</updated>
+    <updated>2016-12-11T06:46:04.000Z</updated>
     
     <content type="html"><![CDATA[<p>タイトルの通りです。<a href="https://github.com/tottokotkd/GatewayHandler" target="_blank" rel="external">githubに置いてある</a>し、<a href="https://bintray.com/bintray/jcenter?filterByPkgName=GatewayHandler" target="_blank" rel="external">Bintray経由でjcenterにもある</a>ので使えます。この公開ルートは今回初めてやってみましたが、なかなか便利ですね。</p>
 <p>もちろん公開するだけならgithubページでもイケるんですけど、その作業が手間だったり、IntelliJくんがキャッシュ持つ段階でエラー吐いたり、面倒なのでBintrayです。今はあんまりそこを頑張りたくなかった、仕方なかった。</p>
@@ -40,7 +40,7 @@
 <p>Malformed Lambda proxy response</p>
 </blockquote>
 <p>lambdaとしては呼べるけどcurlすると落ちる。</p>
-<p>Serverless使って一番つらかったのはコレ。Kotlin + Serverless + API Gatewayなんて実際に使っているケースがほぼ見つからない上に、ちょっと古い記事だと「動きました！簡単」とか書いてあるコードが今はもう動かない。嘘だゾ、全然簡単じゃないゾ。</p>
+<p>Serverless使って一番つらかったのはコレ。Kotlin + Serverless + API Gatewayなんて実際に使っているケースがほぼ見つからない上に、数ヶ月前の記事で「動きました！簡単」とか書いてあるコードがもう動かない。嘘だゾ、全然簡単じゃないゾ。</p>
 <p>ということで頑張って検索して探したのがコレ。<del>人柱サンキュー！</del></p>
 <blockquote><p>Ok, I found some documentation which says it expects statusCode, body and headers in a dict.</p>
 <footer><strong>kyl191</strong><cite><a href="https://forums.aws.amazon.com/thread.jspa?threadID=239688" target="_blank" rel="external">AWS Developer Forums: Lambda Proxy Expectations</a></cite></footer></blockquote>
