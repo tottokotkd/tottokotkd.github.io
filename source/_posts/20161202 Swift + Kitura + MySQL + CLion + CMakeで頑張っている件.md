@@ -1,14 +1,19 @@
-layout: swift
+---
 title: Swift + Kitura + MySQLで頑張っている件
 date: 2016-12-02 12:33:13
+permalink: 1
 tags:
+- Swift
+- Kitura
+- MariaDB
+- Sterntaler
 ---
 
 このコードをコピペすればswiftでmysqlサーバー叩いてJSON垂れ流せるぞ！ (実際に試したのはMariaDBだけど)
 
 まずパッケージね。試してないけどLinuxでも動く気がする。
 
-```Package.swift
+```swift
 import PackageDescription
 
 let package = Package(
@@ -21,7 +26,7 @@ let package = Package(
 
 そしてサーバー立てる。コードは超簡単だから説明不要ですねえ。
 
-```main.swift
+```swift
 import Foundation
 import Sterntaler
 import MariaDbTaler

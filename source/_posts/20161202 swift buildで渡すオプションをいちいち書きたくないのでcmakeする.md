@@ -1,7 +1,11 @@
 ---
 title: swift buildで渡すオプションをいちいち書きたくないのでcmakeする
 date: 2016-11-22 22:33:03
+permalink: 1
 tags:
+ - Swift
+ - CLion
+ - CMake
 ---
 
 いまサーバーサイドSwiftが盛り上がっています。まだ派手に燃えてはいませんが、確実に火がついています。だいたいXamarin勉強会の翌日くらい燃えてます。

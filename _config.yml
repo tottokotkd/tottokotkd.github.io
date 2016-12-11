@@ -63,7 +63,7 @@ pagination_dir: page
 # Extensions
 ## Plugins: https://hexo.io/plugins/
 ## Themes: https://hexo.io/themes/
-theme: landscape
+theme: alpha-dust
 
 # Deployment
 ## Docs: https://hexo.io/docs/deployment.html
@@ -76,3 +76,5 @@ feed:
   path: atom.xml
   limit: 20
   hub:
+
+google_analytics: UA-88361167-1
