@@ -1,0 +1,234 @@
+<?xml version="1.0" encoding="utf-8"?>
+<feed xmlns="http://www.w3.org/2005/Atom">
+  <title>電池冷蔵庫</title>
+  <subtitle>スタッドレスタイヤのいらない地域に住みたい</subtitle>
+  <link href="/atom.xml" rel="self"/>
+  
+  <link href="http://blog.tottokotkd.com/"/>
+  <updated>2016-12-11T06:05:29.000Z</updated>
+  <id>http://blog.tottokotkd.com/</id>
+  
+  <author>
+    <name>tottokotkd</name>
+    
+  </author>
+  
+  <generator uri="http://hexo.io/">Hexo</generator>
+  
+  <entry>
+    <title>Kotlin + AWS Lambda + API GatewayでServerlessできちゃうラッパー公開したのでDynamoDBとか使っちゃう</title>
+    <link href="http://blog.tottokotkd.com/2016/12/11/1/"/>
+    <id>http://blog.tottokotkd.com/2016/12/11/1/</id>
+    <published>2016-12-11T03:36:08.000Z</published>
+    <updated>2016-12-11T06:05:29.000Z</updated>
+    
+    <content type="html"><![CDATA[<p>タイトルの通りです。<a href="https://github.com/tottokotkd/GatewayHandler" target="_blank" rel="external">githubに置いてある</a>し、<a href="https://bintray.com/bintray/jcenter?filterByPkgName=GatewayHandler" target="_blank" rel="external">Bintray経由でjcenterにもある</a>ので使えます。この公開ルートは今回初めてやってみましたが、なかなか便利ですね。</p>
+<p>もちろん公開するだけならgithubページでもイケるんですけど、その作業が手間だったり、IntelliJくんがキャッシュ持つ段階でエラー吐いたり、面倒なのでBintrayです。今はあんまりそこを頑張りたくなかった、仕方なかった。</p>
+<p>githubの方に書いてあるんですけど、コードでいうとこんな感じ。</p>
+<figure class="highlight kotlin"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div><div class="line">9</div><div class="line">10</div><div class="line">11</div><div class="line">12</div><div class="line">13</div><div class="line">14</div><div class="line">15</div><div class="line">16</div><div class="line">17</div><div class="line">18</div><div class="line">19</div><div class="line">20</div><div class="line">21</div><div class="line">22</div><div class="line">23</div><div class="line">24</div><div class="line">25</div><div class="line">26</div><div class="line">27</div><div class="line">28</div><div class="line">29</div><div class="line">30</div><div class="line">31</div><div class="line">32</div><div class="line">33</div><div class="line">34</div><div class="line">35</div></pre></td><td class="code"><pre><div class="line"><span class="keyword">package</span> hello</div><div class="line"></div><div class="line"><span class="keyword">import</span> com.amazonaws.regions.Regions</div><div class="line"><span class="keyword">import</span> com.amazonaws.services.dynamodbv2.document.DynamoDB</div><div class="line"><span class="keyword">import</span> com.amazonaws.services.dynamodbv2.document.Item</div><div class="line"><span class="keyword">import</span> com.amazonaws.services.lambda.runtime.Context</div><div class="line"><span class="keyword">import</span> com.tottokotkd.aws.gateway.core.*</div><div class="line"><span class="keyword">import</span> java.time.ZonedDateTime</div><div class="line"><span class="keyword">import</span> java.time.format.DateTimeFormatter</div><div class="line"><span class="keyword">import</span> kotlin.properties.Delegates</div><div class="line"></div><div class="line"><span class="class"><span class="keyword">class</span> <span class="title">SaveRequest</span> </span>&#123;</div><div class="line">    lateinit <span class="keyword">var</span> user: String</div><div class="line">    lateinit <span class="keyword">var</span> url: String</div><div class="line">    <span class="keyword">var</span> rate: <span class="built_in">Int</span> <span class="keyword">by</span> Delegates.notNull()</div><div class="line">    lateinit <span class="keyword">var</span> timestamp: String</div><div class="line">&#125;</div><div class="line"></div><div class="line"><span class="class"><span class="keyword">class</span> <span class="title">SaveHandler</span>: <span class="type">DataHandler</span>&lt;<span class="type">SaveRequest, Any</span>&gt; </span>&#123;</div><div class="line">    <span class="keyword">override</span> <span class="function"><span class="keyword">fun</span> <span class="title">handleRequest</span><span class="params">(input: <span class="type">SaveRequest</span>, context: <span class="type">Context</span>)</span></span>: ResponseData&lt;Any&gt; &#123;</div><div class="line"></div><div class="line">        <span class="keyword">val</span> timestamp = <span class="keyword">try</span> &#123;</div><div class="line">            ZonedDateTime.parse(input.timestamp, DateTimeFormatter.ISO_DATE_TIME)</div><div class="line">        &#125; <span class="keyword">catch</span> (e: Exception) &#123;</div><div class="line">            <span class="keyword">return</span> ResponseData(mapOf(<span class="string">"status"</span> to <span class="string">"error"</span>, <span class="string">"desc"</span> to <span class="string">"date time parsing failed."</span>), StatusCode.BadRequest)</div><div class="line">        &#125;</div><div class="line"></div><div class="line">        <span class="keyword">val</span> dynamoDB = DynamoDB(Regions.US_EAST_1)</div><div class="line">        <span class="keyword">val</span> t = dynamoDB.getTable(<span class="string">"pages"</span>)</div><div class="line">        <span class="keyword">val</span> item = Item.fromMap(mapOf(<span class="string">"user"</span> to input.user, <span class="string">"url"</span> to input.url, <span class="string">"rate"</span> to input.rate, <span class="string">"epoch"</span> to timestamp.toEpochSecond(), <span class="string">"timezone"</span> to timestamp.offset.totalSeconds))</div><div class="line">        <span class="keyword">val</span> result = t.putItem(item)</div><div class="line"></div><div class="line">        <span class="keyword">return</span> ResponseData(mapOf(<span class="string">"status"</span> to <span class="string">"success"</span>, <span class="string">"input"</span> to input))</div><div class="line">    &#125;</div><div class="line">&#125;</div></pre></td></tr></table></figure>
+<p><code>SaveHandler</code>がリクエストハンドラーで、<code>SaveRequest</code>がリクエストに期待される内容ですね。言うまでもないか。</p>
+<p>API Gateway経由なのでJSONを渡されそうなものですが、実際はアマゾンがPOJOに突っ込んだうえで渡してくれます。Serverlessの設定として書くべきことも特になくて、本当にこのままLambdaにデプロイすれば面倒をみてくれます。DynamoDBもIAMさえ弄ればコードは1行で終わり。たったこれだけで (金さえ払えば) 無敵のスケーラビリティが手に入っちゃう。スゴイ！</p>
+<p>ただしアマゾン様といえどもdata classのコンストラクタを使うような器用な芸当は当然やれないので、<code>SaveRequest</code>はプロパティ全てvarのクラスになっています。もっともここは<code>val hoge: String by Delegates.notNull()</code> の方がいいような気もするし、Web APIなんだから<code>String?</code>の方がかえってロジカルに書きやすいような気もするし、その辺りは僕もまだ深く考えてません。そこまでkotlinやAWSの挙動に詳しくないという事情もある。</p>
+<p>それはともかく戻り値が<code>Any</code>になっていて許せん！という人もいると思いますが、これはmapOfで手軽に返したかったのです。データクラスとか指定すればちゃんと型安全で動きます (たぶん)。</p>
+<p>まあこの辺りは趣味の問題でもあり、生産性を上げるために工夫のしどころだとも思うので、<code>ResponseData</code>を使わず自前で実装する方がいいかもですね、ステータスコードは引数じゃなくて型に結びつけるとか。あるいはハンドラーの方にヘルパーをバシバシ生やすとか… その辺は今後ちょっと便利になったらいいかなあ。フォークしてPRで見せびらかしてくれる人とか出てきたら嬉しい。</p>
+<p>で、コードはもう特に書くことないので思い出をつらつらと。</p>
+<h2 id="API-Gateway-gt-Lambda-gt-Error"><a href="#API-Gateway-gt-Lambda-gt-Error" class="headerlink" title="API Gateway -&gt; Lambda -&gt; Error!"></a>API Gateway -&gt; Lambda -&gt; Error!</h2><p><code>sls invoke -f hello</code> が動くぞ！やったー！などと隙を見せたエンジニアを強襲するAWS！</p>
+<blockquote>
+<p>Malformed Lambda proxy response</p>
+</blockquote>
+<p>lambdaとしては呼べるけどcurlすると落ちる。</p>
+<p>Serverless使って一番つらかったのはコレ。Kotlin + Serverless + API Gatewayなんて実際に使っているケースがほぼ見つからない上に、ちょっと古い記事だと「動きました！簡単」とか書いてあるコードが今はもう動かない。嘘だゾ、全然簡単じゃないゾ。</p>
+<p>ということで頑張って検索して探したのがコレ。<del>人柱サンキュー！</del></p>
+<blockquote><p>Ok, I found some documentation which says it expects statusCode, body and headers in a dict.</p>
+<footer><strong>kyl191</strong><cite><a href="https://forums.aws.amazon.com/thread.jspa?threadID=239688" target="_blank" rel="external">AWS Developer Forums: Lambda Proxy Expectations</a></cite></footer></blockquote>
+<p>何でこんな状態なのか、ちょっと意味が分からないんですけど、API Gateway (Lambda Proxy) から呼ばれるLambdaは<strong>戻り値の型はどうでもいいしインターフェイスとかないけど、statusCode body headersという3つの値を持っていないと実行時エラーになる</strong>という凡そJavaとは思われない動的な仕組みになっているみたいです。</p>
+<p>つまり、’sls invoke -f hello’の結果として</p>
+<figure class="highlight json"><table><tr><td class="gutter"><pre><div class="line">1</div></pre></td><td class="code"><pre><div class="line">&#123;<span class="attr">"hage"</span>: [<span class="string">"ok"</span>, <span class="string">"cool"</span>, <span class="string">"amazing"</span>]&#125;</div></pre></td></tr></table></figure>
+<p>みたいな結果が見えている場合はダメです。</p>
+<p>Lambdaとしては動いているのですが、Gateway経由で呼びたいなら以下の内容でなければいけません。</p>
+<figure class="highlight json"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div></pre></td><td class="code"><pre><div class="line">&#123;</div><div class="line">    <span class="attr">"body"</span>: &#123;</div><div class="line">        <span class="attr">"hage"</span>: [<span class="string">"ok"</span>, <span class="string">"cool"</span>, <span class="string">"amazing"</span>]</div><div class="line">    &#125;,</div><div class="line">    <span class="attr">"headers"</span>: &#123;&#125;,</div><div class="line">    <span class="attr">"statusCode"</span>: <span class="number">400</span></div><div class="line">&#125;</div></pre></td></tr></table></figure>
+<p>このフォーマットを守らなければ、Lambda ProxyモードのAPI Gatewayは有効な結果として受け付けてくれないのです。理屈が分かってしまえば納得できますが、この落とし穴だけは本当にひどい罠だと思います。</p>
+<p>一旦Lambda側からJSONを出力した上で、それを改めてGateway側がチェックするんでしょうか？ 色々と想像してますが謎です。</p>
+<p>ちなみにデータのJSON化はあっちがJacksonでやってくれるので、上記のようなプロパティを持つPOJOを投げればいいみたいです。kotlinならdata classですね。あと試していませんがmapでも大丈夫かなと。</p>
+<p>ただまあ、そこを自由にしても特に利点がなさそうなうえ、誰の目にも明らかにバグの温床でしかありません。今回のラッパーでは3つのプロパティを明示的に要求するインターフェイスを作っておきました。そもそも本来こういう仕様になってなきゃJavaコードとしておかしいと思うんですけど、それはそれで公式SDKとしては狭すぎる感じもありますからね… まあ気持ちはわかります。クソですけど。</p>
+<p>Lambdaプロキシ自体が割と新しい機能であることも考えると仕方ない、AWSはこういうものなのだ… と割り切りましょう。</p>
+<h2 id="2つの型パラメータを持つジェネリッククラスでないとエラーになる"><a href="#2つの型パラメータを持つジェネリッククラスでないとエラーになる" class="headerlink" title="2つの型パラメータを持つジェネリッククラスでないとエラーになる"></a>2つの型パラメータを持つジェネリッククラスでないとエラーになる</h2><p>もうエラーログが手元にないんですが、リクエストハンドラーとして型パラメータ1つのクラスを作ってみたら「型パラメータは2つないと困るんだよなァ！」みたいな激おこメッセージを飛ばしてきました。これまたちょっと意味が分からないんですけど、JSONをリクエストPOJOに変換するときに型パラメータを使おうとしているのかな？ とにかくダメなものはダメらしいです。</p>
+<p>それにしたって型パラメータ2つじゃないとダメっておかしくねえか？設計どうなってんの？という気もしますが仕方ない、AWSはこういうものなのだ… と割り切りましょう。</p>
+<h2 id="Internal-Server-Error"><a href="#Internal-Server-Error" class="headerlink" title="Internal Server Error"></a>Internal Server Error</h2><p>API Gatewayを通過して結果が戻ってくるまでの間にエラーが発生するとInternal Server Errorです。例えば「Lambda処理内でリクエストパラメータを参照したらnull例外で落ちた」とかいう場合、それはInternal Server Errorであり、Gatewayのデフォルト処理が走って超ダサいJSONを投げ返します。</p>
+<p>サーバー内部でエラーが発生するなら、API Gatewayの視点からは全てInternal Server Errorなのです。まあそりゃ当然の挙動なんですけど、それはAPIを書く側からするとBadRequestだし、そもそも勝手にダサいJSONを流されるのも困ります。</p>
+<p>ということでつまり、ハンドラ全体をtryで囲わないと不安だし、リクエスト内容の処理もちゃんと書かないといけません。当たり前の話とはいえ若干ちょっと面倒そう…</p>
+<p>その辺りをうまく集約できるインターフェイスとか作らないと大変そうですね。まあもちろん「ステータスコードさえ取れるなら大丈夫、後はYAGNI」という考え方もあると思います。その辺りの線引きはちょっと難しそう。</p>
+<h2 id="ということで"><a href="#ということで" class="headerlink" title="ということで"></a>ということで</h2><p>なんか動くものは作れそうだし頑張る。</p>
+]]></content>
+    
+    <summary type="html">
+    
+      &lt;p&gt;タイトルの通りです。&lt;a href=&quot;https://github.com/tottokotkd/GatewayHandler&quot; target=&quot;_blank&quot; rel=&quot;external&quot;&gt;githubに置いてある&lt;/a&gt;し、&lt;a href=&quot;https://bintra
+    
+    </summary>
+    
+    
+  </entry>
+  
+  <entry>
+    <title>Kotlin + AWS Lambda + API GatewayでServerlessできちゃうラッパー公開したのでDynamoDBとか使っちゃう</title>
+    <link href="http://blog.tottokotkd.com/2016/12/11/1/"/>
+    <id>http://blog.tottokotkd.com/2016/12/11/1/</id>
+    <published>2016-12-11T03:36:08.000Z</published>
+    <updated>2016-12-11T06:05:29.000Z</updated>
+    
+    <content type="html"><![CDATA[<p>タイトルの通りです。<a href="https://github.com/tottokotkd/GatewayHandler" target="_blank" rel="external">githubに置いてある</a>し、<a href="https://bintray.com/bintray/jcenter?filterByPkgName=GatewayHandler" target="_blank" rel="external">Bintray経由でjcenterにもある</a>ので使えます。この公開ルートは今回初めてやってみましたが、なかなか便利ですね。</p>
+<p>もちろん公開するだけならgithubページでもイケるんですけど、その作業が手間だったり、IntelliJくんがキャッシュ持つ段階でエラー吐いたり、面倒なのでBintrayです。今はあんまりそこを頑張りたくなかった、仕方なかった。</p>
+<p>githubの方に書いてあるんですけど、コードでいうとこんな感じ。</p>
+<figure class="highlight kotlin"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div><div class="line">9</div><div class="line">10</div><div class="line">11</div><div class="line">12</div><div class="line">13</div><div class="line">14</div><div class="line">15</div><div class="line">16</div><div class="line">17</div><div class="line">18</div><div class="line">19</div><div class="line">20</div><div class="line">21</div><div class="line">22</div><div class="line">23</div><div class="line">24</div><div class="line">25</div><div class="line">26</div><div class="line">27</div><div class="line">28</div><div class="line">29</div><div class="line">30</div><div class="line">31</div><div class="line">32</div><div class="line">33</div><div class="line">34</div><div class="line">35</div></pre></td><td class="code"><pre><div class="line"><span class="keyword">package</span> hello</div><div class="line"></div><div class="line"><span class="keyword">import</span> com.amazonaws.regions.Regions</div><div class="line"><span class="keyword">import</span> com.amazonaws.services.dynamodbv2.document.DynamoDB</div><div class="line"><span class="keyword">import</span> com.amazonaws.services.dynamodbv2.document.Item</div><div class="line"><span class="keyword">import</span> com.amazonaws.services.lambda.runtime.Context</div><div class="line"><span class="keyword">import</span> com.tottokotkd.aws.gateway.core.*</div><div class="line"><span class="keyword">import</span> java.time.ZonedDateTime</div><div class="line"><span class="keyword">import</span> java.time.format.DateTimeFormatter</div><div class="line"><span class="keyword">import</span> kotlin.properties.Delegates</div><div class="line"></div><div class="line"><span class="class"><span class="keyword">class</span> <span class="title">SaveRequest</span> </span>&#123;</div><div class="line">    lateinit <span class="keyword">var</span> user: String</div><div class="line">    lateinit <span class="keyword">var</span> url: String</div><div class="line">    <span class="keyword">var</span> rate: <span class="built_in">Int</span> <span class="keyword">by</span> Delegates.notNull()</div><div class="line">    lateinit <span class="keyword">var</span> timestamp: String</div><div class="line">&#125;</div><div class="line"></div><div class="line"><span class="class"><span class="keyword">class</span> <span class="title">SaveHandler</span>: <span class="type">DataHandler</span>&lt;<span class="type">SaveRequest, Any</span>&gt; </span>&#123;</div><div class="line">    <span class="keyword">override</span> <span class="function"><span class="keyword">fun</span> <span class="title">handleRequest</span><span class="params">(input: <span class="type">SaveRequest</span>, context: <span class="type">Context</span>)</span></span>: ResponseData&lt;Any&gt; &#123;</div><div class="line"></div><div class="line">        <span class="keyword">val</span> timestamp = <span class="keyword">try</span> &#123;</div><div class="line">            ZonedDateTime.parse(input.timestamp, DateTimeFormatter.ISO_DATE_TIME)</div><div class="line">        &#125; <span class="keyword">catch</span> (e: Exception) &#123;</div><div class="line">            <span class="keyword">return</span> ResponseData(mapOf(<span class="string">"status"</span> to <span class="string">"error"</span>, <span class="string">"desc"</span> to <span class="string">"date time parsing failed."</span>), StatusCode.BadRequest)</div><div class="line">        &#125;</div><div class="line"></div><div class="line">        <span class="keyword">val</span> dynamoDB = DynamoDB(Regions.US_EAST_1)</div><div class="line">        <span class="keyword">val</span> t = dynamoDB.getTable(<span class="string">"pages"</span>)</div><div class="line">        <span class="keyword">val</span> item = Item.fromMap(mapOf(<span class="string">"user"</span> to input.user, <span class="string">"url"</span> to input.url, <span class="string">"rate"</span> to input.rate, <span class="string">"epoch"</span> to timestamp.toEpochSecond(), <span class="string">"timezone"</span> to timestamp.offset.totalSeconds))</div><div class="line">        <span class="keyword">val</span> result = t.putItem(item)</div><div class="line"></div><div class="line">        <span class="keyword">return</span> ResponseData(mapOf(<span class="string">"status"</span> to <span class="string">"success"</span>, <span class="string">"input"</span> to input))</div><div class="line">    &#125;</div><div class="line">&#125;</div></pre></td></tr></table></figure>
+<p><code>SaveHandler</code>がリクエストハンドラーで、<code>SaveRequest</code>がリクエストに期待される内容ですね。言うまでもないか。</p>
+<p>API Gateway経由なのでJSONを渡されそうなものですが、実際はアマゾンがPOJOに突っ込んだうえで渡してくれます。Serverlessの設定として書くべきことも特になくて、本当にこのままLambdaにデプロイすれば面倒をみてくれます。DynamoDBもIAMさえ弄ればコードは1行で終わり。たったこれだけで (金さえ払えば) 無敵のスケーラビリティが手に入っちゃう。スゴイ！</p>
+<p>ただしアマゾン様といえどもdata classのコンストラクタを使うような器用な芸当は当然やれないので、<code>SaveRequest</code>はプロパティ全てvarのクラスになっています。もっともここは<code>val hoge: String by Delegates.notNull()</code> の方がいいような気もするし、Web APIなんだから<code>String?</code>の方がかえってロジカルに書きやすいような気もするし、その辺りは僕もまだ深く考えてません。そこまでkotlinやAWSの挙動に詳しくないという事情もある。</p>
+<p>それはともかく戻り値が<code>Any</code>になっていて許せん！という人もいると思いますが、これはmapOfで手軽に返したかったのです。データクラスとか指定すればちゃんと型安全で動きます (たぶん)。</p>
+<p>まあこの辺りは趣味の問題でもあり、生産性を上げるために工夫のしどころだとも思うので、<code>ResponseData</code>を使わず自前で実装する方がいいかもですね、ステータスコードは引数じゃなくて型に結びつけるとか。あるいはハンドラーの方にヘルパーをバシバシ生やすとか… その辺は今後ちょっと便利になったらいいかなあ。フォークしてPRで見せびらかしてくれる人とか出てきたら嬉しい。</p>
+<p>で、コードはもう特に書くことないので思い出をつらつらと。</p>
+<h2 id="API-Gateway-gt-Lambda-gt-Error"><a href="#API-Gateway-gt-Lambda-gt-Error" class="headerlink" title="API Gateway -&gt; Lambda -&gt; Error!"></a>API Gateway -&gt; Lambda -&gt; Error!</h2><p><code>sls invoke -f hello</code> が動くぞ！やったー！などと隙を見せたエンジニアを強襲するAWS！</p>
+<blockquote>
+<p>Malformed Lambda proxy response</p>
+</blockquote>
+<p>lambdaとしては呼べるけどcurlすると落ちる。</p>
+<p>Serverless使って一番つらかったのはコレ。Kotlin + Serverless + API Gatewayなんて実際に使っているケースがほぼ見つからない上に、ちょっと古い記事だと「動きました！簡単」とか書いてあるコードが今はもう動かない。嘘だゾ、全然簡単じゃないゾ。</p>
+<p>ということで頑張って検索して探したのがコレ。<del>人柱サンキュー！</del></p>
+<blockquote><p>Ok, I found some documentation which says it expects statusCode, body and headers in a dict.</p>
+<footer><strong>kyl191</strong><cite><a href="https://forums.aws.amazon.com/thread.jspa?threadID=239688" target="_blank" rel="external">AWS Developer Forums: Lambda Proxy Expectations</a></cite></footer></blockquote>
+<p>何でこんな状態なのか、ちょっと意味が分からないんですけど、API Gateway (Lambda Proxy) から呼ばれるLambdaは<strong>戻り値の型はどうでもいいしインターフェイスとかないけど、statusCode body headersという3つの値を持っていないと実行時エラーになる</strong>という凡そJavaとは思われない動的な仕組みになっているみたいです。</p>
+<p>つまり、’sls invoke -f hello’の結果として</p>
+<figure class="highlight json"><table><tr><td class="gutter"><pre><div class="line">1</div></pre></td><td class="code"><pre><div class="line">&#123;<span class="attr">"hage"</span>: [<span class="string">"ok"</span>, <span class="string">"cool"</span>, <span class="string">"amazing"</span>]&#125;</div></pre></td></tr></table></figure>
+<p>みたいな結果が見えている場合はダメです。</p>
+<p>Lambdaとしては動いているのですが、Gateway経由で呼びたいなら以下の内容でなければいけません。</p>
+<figure class="highlight json"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div></pre></td><td class="code"><pre><div class="line">&#123;</div><div class="line">    <span class="attr">"body"</span>: &#123;</div><div class="line">        <span class="attr">"hage"</span>: [<span class="string">"ok"</span>, <span class="string">"cool"</span>, <span class="string">"amazing"</span>]</div><div class="line">    &#125;,</div><div class="line">    <span class="attr">"headers"</span>: &#123;&#125;,</div><div class="line">    <span class="attr">"statusCode"</span>: <span class="number">400</span></div><div class="line">&#125;</div></pre></td></tr></table></figure>
+<p>このフォーマットを守らなければ、Lambda ProxyモードのAPI Gatewayは有効な結果として受け付けてくれないのです。理屈が分かってしまえば納得できますが、この落とし穴だけは本当にひどい罠だと思います。</p>
+<p>一旦Lambda側からJSONを出力した上で、それを改めてGateway側がチェックするんでしょうか？ 色々と想像してますが謎です。</p>
+<p>ちなみにデータのJSON化はあっちがJacksonでやってくれるので、上記のようなプロパティを持つPOJOを投げればいいみたいです。kotlinならdata classですね。あと試していませんがmapでも大丈夫かなと。</p>
+<p>ただまあ、そこを自由にしても特に利点がなさそうなうえ、誰の目にも明らかにバグの温床でしかありません。今回のラッパーでは3つのプロパティを明示的に要求するインターフェイスを作っておきました。そもそも本来こういう仕様になってなきゃJavaコードとしておかしいと思うんですけど、それはそれで公式SDKとしては狭すぎる感じもありますからね… まあ気持ちはわかります。クソですけど。</p>
+<p>Lambdaプロキシ自体が割と新しい機能であることも考えると仕方ない、AWSはこういうものなのだ… と割り切りましょう。</p>
+<h2 id="2つの型パラメータを持つジェネリッククラスでないとエラーになる"><a href="#2つの型パラメータを持つジェネリッククラスでないとエラーになる" class="headerlink" title="2つの型パラメータを持つジェネリッククラスでないとエラーになる"></a>2つの型パラメータを持つジェネリッククラスでないとエラーになる</h2><p>もうエラーログが手元にないんですが、リクエストハンドラーとして型パラメータ1つのクラスを作ってみたら「型パラメータは2つないと困るんだよなァ！」みたいな激おこメッセージを飛ばしてきました。これまたちょっと意味が分からないんですけど、JSONをリクエストPOJOに変換するときに型パラメータを使おうとしているのかな？ とにかくダメなものはダメらしいです。</p>
+<p>それにしたって型パラメータ2つじゃないとダメっておかしくねえか？設計どうなってんの？という気もしますが仕方ない、AWSはこういうものなのだ… と割り切りましょう。</p>
+<h2 id="Internal-Server-Error"><a href="#Internal-Server-Error" class="headerlink" title="Internal Server Error"></a>Internal Server Error</h2><p>API Gatewayを通過して結果が戻ってくるまでの間にエラーが発生するとInternal Server Errorです。例えば「Lambda処理内でリクエストパラメータを参照したらnull例外で落ちた」とかいう場合、それはInternal Server Errorであり、Gatewayのデフォルト処理が走って超ダサいJSONを投げ返します。</p>
+<p>サーバー内部でエラーが発生するなら、API Gatewayの視点からは全てInternal Server Errorなのです。まあそりゃ当然の挙動なんですけど、それはAPIを書く側からするとBadRequestだし、そもそも勝手にダサいJSONを流されるのも困ります。</p>
+<p>ということでつまり、ハンドラ全体をtryで囲わないと不安だし、リクエスト内容の処理もちゃんと書かないといけません。当たり前の話とはいえ若干ちょっと面倒そう…</p>
+<p>その辺りをうまく集約できるインターフェイスとか作らないと大変そうですね。まあもちろん「ステータスコードさえ取れるなら大丈夫、後はYAGNI」という考え方もあると思います。その辺りの線引きはちょっと難しそう。</p>
+<h2 id="ということで"><a href="#ということで" class="headerlink" title="ということで"></a>ということで</h2><p>なんか動くものは作れそうだし頑張る。</p>
+]]></content>
+    
+    <summary type="html">
+    
+      &lt;p&gt;タイトルの通りです。&lt;a href=&quot;https://github.com/tottokotkd/GatewayHandler&quot; target=&quot;_blank&quot; rel=&quot;external&quot;&gt;githubに置いてある&lt;/a&gt;し、&lt;a href=&quot;https://bintra
+    
+    </summary>
+    
+    
+  </entry>
+  
+  <entry>
+    <title>Swift + Kitura + MySQLで頑張っている件</title>
+    <link href="http://blog.tottokotkd.com/2016/12/02/1/"/>
+    <id>http://blog.tottokotkd.com/2016/12/02/1/</id>
+    <published>2016-12-02T03:33:13.000Z</published>
+    <updated>2016-12-02T16:04:02.000Z</updated>
+    
+    <content type="html"><![CDATA[<p>このコードをコピペすればswiftでmysqlサーバー叩いてJSON垂れ流せるぞ！ (実際に試したのはMariaDBだけど)</p>
+<p>まずパッケージね。試してないけどLinuxでも動く気がする。</p>
+<figure class="highlight swift"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div></pre></td><td class="code"><pre><div class="line"><span class="keyword">import</span> PackageDescription</div><div class="line"></div><div class="line"><span class="keyword">let</span> package = <span class="type">Package</span>(</div><div class="line">    name: <span class="string">"nwsns"</span>,</div><div class="line">    dependencies: [</div><div class="line">        .<span class="type">Package</span>(url: <span class="string">"https://github.com/IBM-Swift/Kitura.git"</span>, majorVersion: <span class="number">1</span>, minor: <span class="number">2</span>),</div><div class="line">        .<span class="type">Package</span>(url: <span class="string">"https://github.com/tottokotkd/MariaDbTaler.git"</span>, majorVersion: <span class="number">0</span>, minor: <span class="number">1</span>)</div><div class="line">    ])</div></pre></td></tr></table></figure>
+<p>そしてサーバー立てる。コードは超簡単だから説明不要ですねえ。</p>
+<figure class="highlight swift"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div><div class="line">9</div><div class="line">10</div><div class="line">11</div><div class="line">12</div><div class="line">13</div><div class="line">14</div><div class="line">15</div><div class="line">16</div><div class="line">17</div><div class="line">18</div><div class="line">19</div><div class="line">20</div><div class="line">21</div><div class="line">22</div><div class="line">23</div><div class="line">24</div><div class="line">25</div></pre></td><td class="code"><pre><div class="line"><span class="keyword">import</span> Foundation</div><div class="line"><span class="keyword">import</span> Sterntaler</div><div class="line"><span class="keyword">import</span> MariaDbTaler</div><div class="line"><span class="keyword">import</span> Kitura</div><div class="line"><span class="keyword">import</span> SwiftyJSON</div><div class="line"></div><div class="line"><span class="comment">// Create a new router</span></div><div class="line"><span class="keyword">let</span> router = <span class="type">Router</span>()</div><div class="line"><span class="keyword">let</span> pool = <span class="type">MariaDB</span>.<span class="keyword">get</span>(host: <span class="string">"127.0.0.1"</span>, user: <span class="string">"root"</span>, password: <span class="string">"pass"</span>, database: <span class="string">"fosdb"</span>)</div><div class="line"><span class="keyword">let</span> columns = (<span class="type">Columns</span>.int(<span class="string">"id"</span>), <span class="type">Columns</span>.string(<span class="string">"name"</span>), <span class="type">NullableColumns</span>.date(<span class="string">"day"</span>))</div><div class="line"></div><div class="line"><span class="comment">// Handle HTTP GET requests to /</span></div><div class="line">router.<span class="keyword">get</span>(<span class="string">"/"</span>) &#123; request, response, next <span class="keyword">in</span></div><div class="line">    <span class="keyword">let</span> data = pool.execute(sql: <span class="string">"SELECT id, name, day FROM test"</span>)</div><div class="line">        .<span class="built_in">map</span>&#123;$<span class="number">0</span>.read(tuple: columns)&#125;</div><div class="line">        .<span class="built_in">map</span>&#123;[<span class="string">"id"</span>: $<span class="number">0.0</span>, <span class="string">"name"</span>: $<span class="number">0.1</span>, <span class="string">"day"</span>: $<span class="number">0.2</span>?.description ?? <span class="string">"null"</span>]&#125;</div><div class="line">    <span class="keyword">try</span>! response.status(.<span class="type">OK</span>).send(json: <span class="type">JSON</span>(data)).end()</div><div class="line">    next()</div><div class="line">&#125;</div><div class="line"></div><div class="line"><span class="comment">// Add an HTTP server and connect it to the router</span></div><div class="line"><span class="type">Kitura</span>.addHTTPServer(onPort: <span class="number">8090</span>, with: router)</div><div class="line"></div><div class="line"><span class="comment">// Start the Kitura runloop (this call never returns)</span></div><div class="line"><span class="type">Kitura</span>.run()</div></pre></td></tr></table></figure>
+<p>Sterntaler / MariaDbTalerとかいうモジュールがMySQL Connector/Cの自作ラッパーです。ホントは劣化Slickみたいなすごいやつ作りたかったけど当然無理なので妥協しました。SQLインジェクション対策すらない時点で100%ダメなのですけど、でもなんだか既存のコードもしっくり来なくて… </p>
+<p>ちなみにプールとか言ってますが勿論ウソです。毎回つないでます。</p>
+<p>これを動かす場合、<code>brew install mariadb</code>でMariaDBを入れて、それっぽいデータベースとテーブル作って、<code>swift build -Xlinker -L/usr/local/lib -Xcc -I/usr/local/include -Xswiftc -lmysqlclient</code>でビルドすれば動く気がします。もちろんKituraの依存ライブラリーも入れましょう。</p>
+<p>ちなみに、いま世間にいくつかあるSwift系mysqlライブラリーにはOpenSSLが入っていないとビルドできないものがあるみたいです。ところがOpenSSLをbrewでインストールするとリンク段階で失敗することがあるので、その場合ビルドするときには<code>-Xcc -I/usr/local/opt/openssl/include -Xlinker -L/usr/local/opt/openssl/lib</code>とか指定するといいです。たぶん。</p>
+<p>（それらはGPLに静的リンクしているような気がするけど調べてません）</p>
+<p>この方向で何かちょっと動くものを作れるか頑張ってます。しかし実際どうなるかはわかんない。</p>
+]]></content>
+    
+    <summary type="html">
+    
+      &lt;p&gt;このコードをコピペすればswiftでmysqlサーバー叩いてJSON垂れ流せるぞ！ (実際に試したのはMariaDBだけど)&lt;/p&gt;
+&lt;p&gt;まずパッケージね。試してないけどLinuxでも動く気がする。&lt;/p&gt;
+&lt;figure class=&quot;highlight swift&quot;&gt;
+    
+    </summary>
+    
+    
+      <category term="Swift" scheme="http://blog.tottokotkd.com/tags/Swift/"/>
+    
+      <category term="Kitura" scheme="http://blog.tottokotkd.com/tags/Kitura/"/>
+    
+      <category term="MariaDB" scheme="http://blog.tottokotkd.com/tags/MariaDB/"/>
+    
+      <category term="Sterntaler" scheme="http://blog.tottokotkd.com/tags/Sterntaler/"/>
+    
+  </entry>
+  
+  <entry>
+    <title>swift buildで渡すオプションをいちいち書きたくないのでcmakeする</title>
+    <link href="http://blog.tottokotkd.com/2016/11/22/1/"/>
+    <id>http://blog.tottokotkd.com/2016/11/22/1/</id>
+    <published>2016-11-22T13:33:03.000Z</published>
+    <updated>2016-12-02T16:04:02.000Z</updated>
+    
+    <content type="html"><![CDATA[<p>いまサーバーサイドSwiftが盛り上がっています。まだ派手に燃えてはいませんが、確実に火がついています。だいたいXamarin勉強会の翌日くらい燃えてます。</p>
+<p>そういう次第でswiftの話です。毎度毎度 <code>swift build -Xswiftc -I/usr/local/include/mysql -Xlinker -L/usr/local/lib</code> とか書きたくない人は幸せになれるかもしれないです。</p>
+<h2 id="CMakeFiles-txtを書くべし"><a href="#CMakeFiles-txtを書くべし" class="headerlink" title="CMakeFiles.txtを書くべし"></a>CMakeFiles.txtを書くべし</h2><p>まずこういうやつ書いてください。ビルドコマンドのオプションを適宜いい感じにしましょう。</p>
+<figure class="highlight cmake"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div><div class="line">9</div><div class="line">10</div><div class="line">11</div><div class="line">12</div><div class="line">13</div><div class="line">14</div><div class="line">15</div><div class="line">16</div><div class="line">17</div></pre></td><td class="code"><pre><div class="line"><span class="keyword">cmake_minimum_required</span>(VERSION <span class="number">3.6</span>)</div><div class="line"><span class="keyword">project</span>(MariaDbTaler)</div><div class="line"></div><div class="line"><span class="keyword">set</span>(SOURCE_FILES</div><div class="line">        Sources/MariaDbDriver.swift</div><div class="line">        Package.swift)</div><div class="line"></div><div class="line"><span class="keyword">set</span>(SWIFT_COMMAND</div><div class="line">        swift build</div><div class="line">        -Xlinker -L/usr/local/lib</div><div class="line">        -Xcc -I/usr/local/<span class="keyword">include</span></div><div class="line">        -Xswiftc -lmysqlclient)</div><div class="line"></div><div class="line"><span class="keyword">add_custom_target</span>(MariaDbTaler</div><div class="line">        COMMAND <span class="variable">$&#123;SWIFT_COMMAND&#125;</span></div><div class="line">        WORKING_DIRECTORY <span class="variable">$&#123;CMAKE_SOURCE_DIR&#125;</span></div><div class="line">        SOURCES <span class="variable">$&#123;SOURCE_FILES&#125;</span>)</div></pre></td></tr></table></figure>
+<p>なお試してませんが明らかに<code>SOURCE_FILES</code>は書かなくてよい気がいたします。</p>
+<h2 id="cmake-すべし"><a href="#cmake-すべし" class="headerlink" title="cmake .すべし"></a><code>cmake .</code>すべし</h2><p><a href="http://qiita.com/osamu0329/items/7de2b190df3cfb4ad0ca" target="_blank" rel="external">人類なら<code>out-of-source</code>ビルドしなさい</a>という話もありますが、最初はまあいいです。1回実行してゴミファイルが大量に出来てから後悔しても遅くないです。</p>
+<h2 id="make-XXXXXX-すべし"><a href="#make-XXXXXX-すべし" class="headerlink" title="make XXXXXX すべし"></a><code>make XXXXXX</code> すべし</h2><p>上の例だと<code>make MariaDbTaler</code>ですね。プロジェクト名を渡してやります。そうするとあらかじめ設定してあるコマンドが走るのです。</p>
+<h2 id="別にCMakeいらなくね？"><a href="#別にCMakeいらなくね？" class="headerlink" title="別にCMakeいらなくね？"></a>別にCMakeいらなくね？</h2><p>いらないです。CMake経由しても特にいいことないしシェルスクリプト書けばいいじゃん。なんだよこれ！</p>
+<p>ところが、みんな大好きJetBrains謹製IDEであるCLionくんが “<a href="https://blog.jetbrains.com/clion/2015/12/swift-plugin-for-clion/" target="_blank" rel="external">CLion relies on CMake project model, so you need to start a CMake project for Swift</a>“ と宣うているのです。正直まだまだCLionのSwiftプラグインはショボくて辛い感じなのですが、CLionを使うならCMakeFiles.txtは嫌でも書かなきゃいけません。そこで一括して書けると考えれば、まあちょっとだけ便利です。</p>
+<h2 id="余談-Xswiftc-is-何"><a href="#余談-Xswiftc-is-何" class="headerlink" title="余談: -Xswiftc is 何"></a>余談: -Xswiftc is 何</h2><p><code>swift --help</code>ってなんか使いにくい気がしてならないんですよね。ヘルプ叩いたらサブコマンドの一覧も出してほしいし… <code>swift package update</code>の存在とか分かりにくすぎるし… しかしまあそれはいいです。</p>
+<p><code>-Xswiftc</code>のことは<code>swift build --help</code>すれば分かります。</p>
+<figure class="highlight swift"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div><div class="line">9</div><div class="line">10</div><div class="line">11</div><div class="line">12</div><div class="line">13</div><div class="line">14</div><div class="line">15</div><div class="line">16</div><div class="line">17</div><div class="line">18</div><div class="line">19</div><div class="line">20</div></pre></td><td class="code"><pre><div class="line">$ swift build --help</div><div class="line"></div><div class="line"><span class="type">OVERVIEW</span>: <span class="type">Build</span> sources into binary products</div><div class="line"></div><div class="line"><span class="type">USAGE</span>: swift build [mode] [options]</div><div class="line"></div><div class="line"><span class="type">MODES</span>:</div><div class="line">  -<span class="built_in">c</span>, --configuration &lt;value&gt;   <span class="type">Build</span> with configuration (debug|release) [<span class="keyword">default</span>: debug]</div><div class="line">  --clean [&lt;mode&gt;]              <span class="type">Delete</span> artifacts (build|dist) [<span class="keyword">default</span>: build]</div><div class="line"></div><div class="line"><span class="type">OPTIONS</span>:</div><div class="line">  -<span class="type">C</span>, --chdir &lt;path&gt;       <span class="type">Change</span> working directory before any other operation</div><div class="line">  --build-path &lt;path&gt;      <span class="type">Specify</span> build/cache directory [<span class="keyword">default</span>: ./.build]</div><div class="line">  --color &lt;mode&gt;           <span class="type">Specify</span> color mode (auto|always|never) [<span class="keyword">default</span>: auto]</div><div class="line">  -v, --verbose            <span class="type">Increase</span> verbosity of informational output</div><div class="line">  -<span class="type">Xcc</span> &lt;flag&gt;              <span class="type">Pass</span> flag through to all <span class="type">C</span> compiler invocations</div><div class="line">  -<span class="type">Xlinker</span> &lt;flag&gt;          <span class="type">Pass</span> flag through to all linker invocations</div><div class="line">  -<span class="type">Xswiftc</span> &lt;flag&gt;          <span class="type">Pass</span> flag through to all <span class="type">Swift</span> compiler invocations</div><div class="line"></div><div class="line"><span class="type">NOTE</span>: <span class="type">Use</span> `swift package` to perform other functions on packages</div></pre></td></tr></table></figure>
+<p><code>-Xswiftc</code>は分かったけど<code>-I/usr/local/include/mysql</code>が分からないんですけど！という人がいると困るので<code>swift --help | grep -e -I</code>します(全文は長い)。</p>
+<figure class="highlight swift"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div></pre></td><td class="code"><pre><div class="line">$ swift --help | grep -e -<span class="type">I</span></div><div class="line"></div><div class="line">  -<span class="type">I</span> &lt;value&gt;             <span class="type">Add</span> directory to the <span class="keyword">import</span> search path</div></pre></td></tr></table></figure>
+<p>gccでよく見かける愉快な仲間たちですね。Xcodeを使っていると普段全く意識しないと思いますが、-Iは「ヘッダーファイルをどこで探すか」を指定するオプションです。Xcodeのビルド設定にも<code>header search paths</code>とかいう項目がありますよね。アレですアレ。</p>
+<p>これはつまり古代C言語の領域に突入しているわけです。<code>swift build</code>の挙動がよく分からないという人はC++あたりのコンパイラ・リンカの解説記事を読むといいかもしれないです。</p>
+<p>決してコンパイラーではありません、コンパイラです。</p>
+]]></content>
+    
+    <summary type="html">
+    
+      &lt;p&gt;いまサーバーサイドSwiftが盛り上がっています。まだ派手に燃えてはいませんが、確実に火がついています。だいたいXamarin勉強会の翌日くらい燃えてます。&lt;/p&gt;
+&lt;p&gt;そういう次第でswiftの話です。毎度毎度 &lt;code&gt;swift build -Xswiftc -I
+    
+    </summary>
+    
+    
+      <category term="Swift" scheme="http://blog.tottokotkd.com/tags/Swift/"/>
+    
+      <category term="CLion" scheme="http://blog.tottokotkd.com/tags/CLion/"/>
+    
+      <category term="CMake" scheme="http://blog.tottokotkd.com/tags/CMake/"/>
+    
+  </entry>
+  
+  <entry>
+    <title>サイト引っ越しとかいう死語について</title>
+    <link href="http://blog.tottokotkd.com/2016/11/20/1/"/>
+    <id>http://blog.tottokotkd.com/2016/11/20/1/</id>
+    <published>2016-11-20T07:45:39.000Z</published>
+    <updated>2016-12-02T16:00:43.000Z</updated>
+    
+    <content type="html"><![CDATA[<p>昔はよく言いましたよねえ、サイトのお引越し。この5年ほどですっかり聞かなくなった印象があります。</p>
+<p>「無償ブログサービスを渡り歩く人が減った」とか、「個人がドメインを持つのが当たり前になった」とか、「Webサイトを持つこと自体が流行らなくなった」とか、まあ色々と理由はありそうですね。知らんけど。</p>
+<p>私なんかは割と「タグ手打ちで工事中」みたいなレトロな世界に馴染みのある人間なんですけど、あの頃は大変だったですねえ… なにしろ世界中で車輪を再発名してましたもんね。今ならtwitterとfacebookでアカウント作って終わりだもん、そりゃインターネットも別世界になるよなあと。</p>
+<p>そこで僕も人類の進歩に便乗し、コマンド一発でブログ作れちゃう<a href="https://hexo.io/" target="_blank" rel="external">Hexo</a>くんのチカラを使ってみました。ただ現状サーバー料金を払う金がないので、関連するリソースはすべて<a href="https://github.com/tottokotkd/tottokotkd.github.io" target="_blank" rel="external">github</a>くんにあります。完全にタダ乗りだけど、なんか技術っぽい記事をたまに書けば許されると思います。</p>
+<p>今ぼんやり考えているのはツイッター関係で一つ、ニュース関係でもう一つ、CUIツールでさらに一つ… でもまあ多分しばらく形にならないので、やむを得ず、本当に仕方なく、どうしても嫌なんだけど不本意ながら、ただの日記みたいな記事を書きます。嗚呼残念だナ。</p>
+<p>なおHexo / github関連の記事は書かない。参考情報が沢山あるから今更追加する必要もない。</p>
+]]></content>
+    
+    <summary type="html">
+    
+      &lt;p&gt;昔はよく言いましたよねえ、サイトのお引越し。この5年ほどですっかり聞かなくなった印象があります。&lt;/p&gt;
+&lt;p&gt;「無償ブログサービスを渡り歩く人が減った」とか、「個人がドメインを持つのが当たり前になった」とか、「Webサイトを持つこと自体が流行らなくなった」とか、まあ色々と
+    
+    </summary>
+    
+    
+  </entry>
+  
+</feed>

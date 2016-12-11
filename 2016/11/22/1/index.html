@@ -1,0 +1,318 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<!-- Head tag -->
+<head>
+
+    <meta charset="utf-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+
+    <!--Description-->
+    
+        <meta name="description" content="いまサーバーサイドSwiftが盛り上がっています。まだ派手に燃えてはいませんが、確実に火がついています。だいたいXamarin勉強会の翌日くらい燃えてます。
+そういう次第でswiftの話です。毎度毎度 swift build -Xswiftc -I/usr/local/include/mysql -">
+    
+
+    <!--Author-->
+    
+        <meta name="author" content="tottokotkd">
+    
+
+    <!--Open Graph Title-->
+    
+        <meta property="og:title" content="swift buildで渡すオプションをいちいち書きたくないのでcmakeする"/>
+    
+
+    <!--Open Graph Description-->
+    
+
+    <!--Open Graph Site Name-->
+    <meta property="og:site_name" content="電池冷蔵庫"/>
+
+    <!--Type page-->
+    
+        <meta property="og:type" content="article" />
+    
+
+    <!--Page Cover-->
+    
+
+    <meta name="twitter:card" content="summary" />
+    
+
+    <!-- Title -->
+    
+    <title>swift buildで渡すオプションをいちいち書きたくないのでcmakeする - 電池冷蔵庫</title>
+
+    <!-- Bootstrap Core CSS -->
+    <link rel="stylesheet" href="//maxcdn.bootstrapcdn.com/bootstrap/4.0.0-alpha.2/css/bootstrap.min.css" integrity="sha384-y3tfxAZXuh4HwSYylfB+J125MxIs6mR5FOHamPBG064zB+AFeWH94NdvaCBm8qnd" crossorigin="anonymous">
+
+    <!-- Custom Fonts -->
+    <link href="//maxcdn.bootstrapcdn.com/font-awesome/4.6.3/css/font-awesome.min.css" rel="stylesheet" type="text/css">
+
+    <!-- HTML5 Shim and Respond.js IE8 support of HTML5 elements and media queries -->
+    <!-- WARNING: Respond.js doesn't work if you view the page via file:// -->
+    <!--[if lt IE 9]>
+        <script src="//oss.maxcdn.com/libs/html5shiv/3.7.0/html5shiv.js"></script>
+        <script src="//oss.maxcdn.com/libs/respond.js/1.4.2/respond.min.js"></script>
+    <![endif]-->
+
+    <!-- Gallery -->
+    <link href="//cdnjs.cloudflare.com/ajax/libs/featherlight/1.3.5/featherlight.min.css" type="text/css" rel="stylesheet" />
+
+    <!-- Custom CSS -->
+    <link rel="stylesheet" href="/css/style.css">
+
+    <!-- Google Analytics -->
+    
+    <script>
+        (function(i,s,o,g,r,a,m){i['GoogleAnalyticsObject']=r;i[r]=i[r]||function(){
+                    (i[r].q=i[r].q||[]).push(arguments)},i[r].l=1*new Date();a=s.createElement(o),
+                m=s.getElementsByTagName(o)[0];a.async=1;a.src=g;m.parentNode.insertBefore(a,m)
+        })(window,document,'script','//www.google-analytics.com/analytics.js','ga');
+
+        ga('create', 'UA-88361167-1', 'auto');
+        ga('send', 'pageview');
+
+    </script>
+
+
+
+</head>
+
+
+<body>
+
+<div class="bg-gradient"></div>
+<div class="bg-pattern"></div>
+
+<!-- Menu -->
+<!--Menu Links and Overlay-->
+<div class="menu-bg">
+    <div class="menu-container">
+        <ul>
+            
+            <li class="menu-item">
+                <a href="/">
+                    Home
+                </a>
+            </li>
+            
+            <li class="menu-item">
+                <a href="/archives">
+                    Archives
+                </a>
+            </li>
+            
+            <li class="menu-item">
+                <a href="/about.html">
+                    About
+                </a>
+            </li>
+            
+            <li class="menu-item">
+                <a href="/contact.html">
+                    Contact
+                </a>
+            </li>
+            
+        </ul>
+    </div>
+</div>
+
+<!--Hamburger Icon-->
+<nav>
+    <a href="#menu"></a>
+</nav>
+
+<div class="container">
+
+    <!-- Main Content -->
+    <div class="row">
+    <div class="col-sm-12">
+
+        <!--Title and Logo-->
+        <header>
+    <div class="logo">
+        <a href="/"><i class="logo-icon fa fa-cube" aria-hidden="true"></i></a>
+        
+    </div>
+</header>
+
+        <section class="main">
+            
+<div class="post">
+
+    <div class="post-header">
+        <h1 class="title">
+            <a href="/2016/11/22/1/">
+                swift buildで渡すオプションをいちいち書きたくないのでcmakeする
+            </a>
+        </h1>
+        <div class="post-info">
+            
+                <span class="date">2016-11-22</span>
+            
+            <a href="#disqus_thread" class="comments">Kommentare</a>
+            
+        </div>
+    </div>
+
+    <div class="content">
+
+        <!-- Gallery -->
+        
+
+        <!-- Post Content -->
+        <p>いまサーバーサイドSwiftが盛り上がっています。まだ派手に燃えてはいませんが、確実に火がついています。だいたいXamarin勉強会の翌日くらい燃えてます。</p>
+<p>そういう次第でswiftの話です。毎度毎度 <code>swift build -Xswiftc -I/usr/local/include/mysql -Xlinker -L/usr/local/lib</code> とか書きたくない人は幸せになれるかもしれないです。</p>
+<h2 id="CMakeFiles-txtを書くべし"><a href="#CMakeFiles-txtを書くべし" class="headerlink" title="CMakeFiles.txtを書くべし"></a>CMakeFiles.txtを書くべし</h2><p>まずこういうやつ書いてください。ビルドコマンドのオプションを適宜いい感じにしましょう。</p>
+<figure class="highlight cmake"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div><div class="line">9</div><div class="line">10</div><div class="line">11</div><div class="line">12</div><div class="line">13</div><div class="line">14</div><div class="line">15</div><div class="line">16</div><div class="line">17</div></pre></td><td class="code"><pre><div class="line"><span class="keyword">cmake_minimum_required</span>(VERSION <span class="number">3.6</span>)</div><div class="line"><span class="keyword">project</span>(MariaDbTaler)</div><div class="line"></div><div class="line"><span class="keyword">set</span>(SOURCE_FILES</div><div class="line">        Sources/MariaDbDriver.swift</div><div class="line">        Package.swift)</div><div class="line"></div><div class="line"><span class="keyword">set</span>(SWIFT_COMMAND</div><div class="line">        swift build</div><div class="line">        -Xlinker -L/usr/local/lib</div><div class="line">        -Xcc -I/usr/local/<span class="keyword">include</span></div><div class="line">        -Xswiftc -lmysqlclient)</div><div class="line"></div><div class="line"><span class="keyword">add_custom_target</span>(MariaDbTaler</div><div class="line">        COMMAND <span class="variable">$&#123;SWIFT_COMMAND&#125;</span></div><div class="line">        WORKING_DIRECTORY <span class="variable">$&#123;CMAKE_SOURCE_DIR&#125;</span></div><div class="line">        SOURCES <span class="variable">$&#123;SOURCE_FILES&#125;</span>)</div></pre></td></tr></table></figure>
+<p>なお試してませんが明らかに<code>SOURCE_FILES</code>は書かなくてよい気がいたします。</p>
+<h2 id="cmake-すべし"><a href="#cmake-すべし" class="headerlink" title="cmake .すべし"></a><code>cmake .</code>すべし</h2><p><a href="http://qiita.com/osamu0329/items/7de2b190df3cfb4ad0ca" target="_blank" rel="external">人類なら<code>out-of-source</code>ビルドしなさい</a>という話もありますが、最初はまあいいです。1回実行してゴミファイルが大量に出来てから後悔しても遅くないです。</p>
+<h2 id="make-XXXXXX-すべし"><a href="#make-XXXXXX-すべし" class="headerlink" title="make XXXXXX すべし"></a><code>make XXXXXX</code> すべし</h2><p>上の例だと<code>make MariaDbTaler</code>ですね。プロジェクト名を渡してやります。そうするとあらかじめ設定してあるコマンドが走るのです。</p>
+<h2 id="別にCMakeいらなくね？"><a href="#別にCMakeいらなくね？" class="headerlink" title="別にCMakeいらなくね？"></a>別にCMakeいらなくね？</h2><p>いらないです。CMake経由しても特にいいことないしシェルスクリプト書けばいいじゃん。なんだよこれ！</p>
+<p>ところが、みんな大好きJetBrains謹製IDEであるCLionくんが “<a href="https://blog.jetbrains.com/clion/2015/12/swift-plugin-for-clion/" target="_blank" rel="external">CLion relies on CMake project model, so you need to start a CMake project for Swift</a>“ と宣うているのです。正直まだまだCLionのSwiftプラグインはショボくて辛い感じなのですが、CLionを使うならCMakeFiles.txtは嫌でも書かなきゃいけません。そこで一括して書けると考えれば、まあちょっとだけ便利です。</p>
+<h2 id="余談-Xswiftc-is-何"><a href="#余談-Xswiftc-is-何" class="headerlink" title="余談: -Xswiftc is 何"></a>余談: -Xswiftc is 何</h2><p><code>swift --help</code>ってなんか使いにくい気がしてならないんですよね。ヘルプ叩いたらサブコマンドの一覧も出してほしいし… <code>swift package update</code>の存在とか分かりにくすぎるし… しかしまあそれはいいです。</p>
+<p><code>-Xswiftc</code>のことは<code>swift build --help</code>すれば分かります。</p>
+<figure class="highlight swift"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div><div class="line">9</div><div class="line">10</div><div class="line">11</div><div class="line">12</div><div class="line">13</div><div class="line">14</div><div class="line">15</div><div class="line">16</div><div class="line">17</div><div class="line">18</div><div class="line">19</div><div class="line">20</div></pre></td><td class="code"><pre><div class="line">$ swift build --help</div><div class="line"></div><div class="line"><span class="type">OVERVIEW</span>: <span class="type">Build</span> sources into binary products</div><div class="line"></div><div class="line"><span class="type">USAGE</span>: swift build [mode] [options]</div><div class="line"></div><div class="line"><span class="type">MODES</span>:</div><div class="line">  -<span class="built_in">c</span>, --configuration &lt;value&gt;   <span class="type">Build</span> with configuration (debug|release) [<span class="keyword">default</span>: debug]</div><div class="line">  --clean [&lt;mode&gt;]              <span class="type">Delete</span> artifacts (build|dist) [<span class="keyword">default</span>: build]</div><div class="line"></div><div class="line"><span class="type">OPTIONS</span>:</div><div class="line">  -<span class="type">C</span>, --chdir &lt;path&gt;       <span class="type">Change</span> working directory before any other operation</div><div class="line">  --build-path &lt;path&gt;      <span class="type">Specify</span> build/cache directory [<span class="keyword">default</span>: ./.build]</div><div class="line">  --color &lt;mode&gt;           <span class="type">Specify</span> color mode (auto|always|never) [<span class="keyword">default</span>: auto]</div><div class="line">  -v, --verbose            <span class="type">Increase</span> verbosity of informational output</div><div class="line">  -<span class="type">Xcc</span> &lt;flag&gt;              <span class="type">Pass</span> flag through to all <span class="type">C</span> compiler invocations</div><div class="line">  -<span class="type">Xlinker</span> &lt;flag&gt;          <span class="type">Pass</span> flag through to all linker invocations</div><div class="line">  -<span class="type">Xswiftc</span> &lt;flag&gt;          <span class="type">Pass</span> flag through to all <span class="type">Swift</span> compiler invocations</div><div class="line"></div><div class="line"><span class="type">NOTE</span>: <span class="type">Use</span> `swift package` to perform other functions on packages</div></pre></td></tr></table></figure>
+<p><code>-Xswiftc</code>は分かったけど<code>-I/usr/local/include/mysql</code>が分からないんですけど！という人がいると困るので<code>swift --help | grep -e -I</code>します(全文は長い)。</p>
+<figure class="highlight swift"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div></pre></td><td class="code"><pre><div class="line">$ swift --help | grep -e -<span class="type">I</span></div><div class="line"></div><div class="line">  -<span class="type">I</span> &lt;value&gt;             <span class="type">Add</span> directory to the <span class="keyword">import</span> search path</div></pre></td></tr></table></figure>
+<p>gccでよく見かける愉快な仲間たちですね。Xcodeを使っていると普段全く意識しないと思いますが、-Iは「ヘッダーファイルをどこで探すか」を指定するオプションです。Xcodeのビルド設定にも<code>header search paths</code>とかいう項目がありますよね。アレですアレ。</p>
+<p>これはつまり古代C言語の領域に突入しているわけです。<code>swift build</code>の挙動がよく分からないという人はC++あたりのコンパイラ・リンカの解説記事を読むといいかもしれないです。</p>
+<p>決してコンパイラーではありません、コンパイラです。</p>
+
+    </div>
+
+    
+
+    
+        <div class="post-tags">
+            <i class="fa fa-tags" aria-hidden="true"></i>
+            <a href="/tags/Swift/">#Swift</a> <a href="/tags/CLion/">#CLion</a> <a href="/tags/CMake/">#CMake</a>
+        </div>
+    
+
+    <!-- Comments -->
+    
+
+</div>
+        </section>
+
+    </div>
+</div>
+
+</div>
+
+<!-- Footer -->
+<div class="push"></div>
+
+<footer class="footer-content">
+    <div class="container">
+        <div class="row">
+            <div class="col-xs-12 col-sm-12 col-md-6 col-lg-6 footer-about">
+                <h2>About</h2>
+                <p>
+                    スタッドレスタイヤのいらない地域に住みたい
+                </p>
+            </div>
+            
+    <div class="col-xs-6 col-sm-6 col-md-3 col-lg-3 recent-posts">
+        <h2>Recent Posts</h2>
+        <ul>
+            
+            <li>
+                <a class="footer-post" href="/2016/12/11/1/">Kotlin + AWS Lambda + API</a>
+            </li>
+            
+            <li>
+                <a class="footer-post" href="/2016/12/11/1/">Kotlin + AWS Lambda + API</a>
+            </li>
+            
+            <li>
+                <a class="footer-post" href="/2016/12/02/1/">Swift + Kitura + MySQLで頑張</a>
+            </li>
+            
+            <li>
+                <a class="footer-post" href="/2016/11/22/1/">swift buildで渡すオプションをいちいち書</a>
+            </li>
+            
+        </ul>
+    </div>
+
+
+
+            
+        </div>
+        <div class="row">
+            <div class="col-xs-12 col-sm-12 col-md-12 col-lg-12">
+                <ul class="list-inline footer-social-icons">
+                    
+                    <li class="list-inline-item">
+                        <a href="https://github.com/tottokotkd/">
+                            <span class="footer-icon-container">
+                                <i class="fa fa-github"></i>
+                            </span>
+                        </a>
+                    </li>
+                    
+                    
+                    <li class="list-inline-item">
+                        <a href="https://twitter.com/tottokotkd">
+                            <span class="footer-icon-container">
+                                <i class="fa fa-twitter"></i>
+                            </span>
+                        </a>
+                    </li>
+                    
+                    
+                    
+                    
+                    
+                    
+                    
+                    
+                    
+                    <li class="list-inline-item">
+                        <a href="/atom.xml">
+                            <span class="footer-icon-container">
+                                <i class="fa fa-rss"></i>
+                            </span>
+                        </a>
+                    </li>
+                    
+                </ul>
+            </div>
+        </div>
+        <div class="row">
+            <div class="col-xs-12 col-sm-12 col-md-12 col-lg-12">
+                <div class="footer-copyright">
+                    (C) 2016 @tottokotkd All right reserved | Design & Hexo <a href="http://www.codeblocq.com/">Jonathan Klughertz</a>
+                </div>
+            </div>
+        </div>
+    </div>
+</footer>
+
+<!-- After footer scripts -->
+
+<!-- jQuery -->
+<script src="//code.jquery.com/jquery-2.1.4.min.js"></script>
+
+<!-- Tween Max -->
+<script src="//cdnjs.cloudflare.com/ajax/libs/gsap/1.18.5/TweenMax.min.js"></script>
+
+<!-- Gallery -->
+<script src="//cdnjs.cloudflare.com/ajax/libs/featherlight/1.3.5/featherlight.min.js" type="text/javascript" charset="utf-8"></script>
+
+<!-- Custom JavaScript -->
+<script src="/js/main.js"></script>
+
+<!-- Disqus Comments -->
+
+
+
+</body>
+
+</html>
