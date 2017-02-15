@@ -5,6 +5,7 @@
 
 # hexo
 /public/*
+!/public/CNAME 
 /.deploy_git
 
 # Logs
