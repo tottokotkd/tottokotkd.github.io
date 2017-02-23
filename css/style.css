@@ -441,6 +441,21 @@ img::-moz-selection {
 body {
   webkit-tap-highlight-color: #0085a1;
 }
+article .container .row p {
+  text-indent: 1em;
+  line-height: 2em;
+}
+article .container .row li {
+  line-height: 2em;
+}
+article .container .row ol {
+  margin-top: 2em;
+  margin-bottom: 2em;
+}
+article .container .row ul {
+  margin-top: 2em;
+  margin-bottom: 2em;
+}
 article .container .row img {
   max-width: 100% !important;
   height: auto;
